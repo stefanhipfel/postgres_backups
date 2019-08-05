@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"flag"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/docker/docker/client"
+	"github.com/namsral/flag"
 	"github.com/robfig/cron"
 	"github.com/stefanhipfel/postgres-backup/pkg/backup"
 	"github.com/stefanhipfel/postgres-backup/pkg/writer"

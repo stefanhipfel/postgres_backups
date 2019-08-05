@@ -3,13 +3,13 @@ package writer
 import (
 	"bufio"
 	"compress/gzip"
-	"flag"
 	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/namsral/flag"
 	"github.com/prometheus/common/log"
 )
 
