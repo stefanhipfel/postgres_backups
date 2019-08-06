@@ -4,10 +4,13 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 
 	"github.com/docker/docker/client"
+	"github.com/joho/godotenv"
 	"github.com/namsral/flag"
+	"github.com/prometheus/common/log"
 	"github.com/robfig/cron"
 	"github.com/stefanhipfel/postgres-backup/pkg/backup"
 	"github.com/stefanhipfel/postgres-backup/pkg/writer"
@@ -19,13 +22,18 @@ var cronTime string
 var writeTo string
 
 func init() {
-	flag.StringVar(&cronTime, "cron_time", "@daily", "set the cron job time")
-	flag.StringVar(&writeTo, "write_to", "file", "where the backup should be written to")
+	err := godotenv.Load(path.Join(os.Getenv("HOME"), "env/.env"))
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	flag.StringVar(&cronTime, "CRON_TIME", "@daily", "set the cron job time")
+	flag.StringVar(&writeTo, "WRITE_TO", "file", "where the backup should be written to")
 	flag.Parse()
 }
 
 func main() {
 	var err error
+	var wr writer.Writer
 	cr := cron.New()
 	ctx = context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -33,9 +41,13 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	p, err := backup.NewPostgres("tastycard-backend_db_1")
-	s3, _ := writer.NewS3("eu-central-1", "tastycard")
+	if writeTo == "S3" {
+		wr, _ = writer.NewS3("eu-central-1", "tastycard")
+	} else {
+		wr, _ = writer.NewFile("./")
+	}
 
-	err = cr.AddFunc(cronTime, func() { p.Backup(ctx, s3) })
+	err = cr.AddFunc(cronTime, func() { p.Backup(ctx, wr) })
 	if err != nil {
 		panic(err)
 	}

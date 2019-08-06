@@ -8,12 +8,12 @@ import (
 )
 
 type File struct {
-	fileName string
+	location string
 }
 
-func NewFile(fileName string) (f *File, err error) {
+func NewFile(location string) (f *File, err error) {
 	return &File{
-		fileName: fileName,
+		location: location,
 	}, err
 }
 

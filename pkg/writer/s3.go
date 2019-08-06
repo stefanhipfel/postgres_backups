@@ -20,19 +20,22 @@ type S3 struct {
 }
 
 var (
-	s3ID     string
-	s3Secret string
+	s3ID       string
+	s3Secret   string
+	s3Endpoint string
 )
 
 func init() {
 	flag.StringVar(&s3ID, "AWS_ACCESS_KEY_ID", "-", "Specifies an AWS access key associated with an IAM user or role.")
 	flag.StringVar(&s3Secret, "AWS_SECRET_ACCESS_KEY", "-", "Specifies the secret key associated with the access key. This is essentially the 'password' for the access key.")
+	flag.StringVar(&s3Endpoint, "AWS_ENDPOINT", "-", "Specifies the url endpoint.")
 }
 
 func NewS3(s3Region, s3Bucket string) (f *S3, err error) {
 	s, err := session.NewSession(&aws.Config{
+		Endpoint:    aws.String(s3Endpoint),
 		Region:      aws.String(s3Region),
-		Credentials: credentials.NewStaticCredentials("AKIAUPIXHJHNRJ6FWTGU", "dJ0Db+q3G8HPr5wrBqdQlsSFhuCbgmjgWr31QJtv", ""),
+		Credentials: credentials.NewStaticCredentials(s3ID, s3Secret, ""),
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +64,7 @@ func (s *S3) Write(f string, r *bufio.Reader) (err error) {
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Body:   pr,
 		Bucket: aws.String(s.s3Bucket),
-		Key:    aws.String("backup/" + f),
+		Key:    aws.String("pgbackup/" + f),
 	})
 	if err != nil {
 		log.Fatalln("Failed to upload", err)

@@ -1,4 +1,4 @@
-IMAGE   ?= hub.global.cloud.sap/monsoon/postgres-backup
+IMAGE   ?= stefanhipfel/postgres-backup
 VERSION = $(shell git rev-parse --verify HEAD | head -c 8)
 
 GOOS    ?= $(shell go env | grep GOOS | cut -d'"' -f2)
