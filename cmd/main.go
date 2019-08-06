@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"path"
 	"syscall"
 
 	"github.com/docker/docker/client"
@@ -22,7 +21,7 @@ var cronTime string
 var writeTo string
 
 func init() {
-	err := godotenv.Load(path.Join(os.Getenv("HOME"), "env/.env"))
+	err := godotenv.Load("/env/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
