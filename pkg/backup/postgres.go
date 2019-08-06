@@ -3,6 +3,7 @@ package backup
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"strings"
 	"sync"
@@ -15,11 +16,20 @@ import (
 	"github.com/stefanhipfel/postgres-backup/pkg/writer"
 )
 
-var mutex = &sync.Mutex{}
+var (
+	mutex              = &sync.Mutex{}
+	postgresLabel      string
+	postgresLabelValue string
+)
 
 type Postgres struct {
 	docker *client.Client
 	name   string
+}
+
+func init() {
+	flag.StringVar(&postgresLabel, "POSTGRES_LABEL", "com.example.database", "label name of the postgres docker container")
+	flag.StringVar(&postgresLabelValue, "POSTGRES_LABEL_VALUE", "postgres", "label value of the postgres docker container")
 }
 
 func NewPostgres(name string) (p *Postgres, err error) {
@@ -80,7 +90,7 @@ func (p *Postgres) Backup(ctx context.Context, w writer.Writer) (err error) {
 func (p *Postgres) getContainer(ctx context.Context) (c []types.Container, err error) {
 	log.Infoln("Reloading containers")
 	filters := filters.NewArgs()
-	filters.Add("name", "tastycard-backend_db_1")
+	filters.Add(postgresLabel, postgresLabelValue)
 
 	mutex.Lock()
 	defer mutex.Unlock()

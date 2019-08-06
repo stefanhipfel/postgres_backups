@@ -15,10 +15,12 @@ import (
 	"github.com/stefanhipfel/postgres-backup/pkg/writer"
 )
 
-var cli *client.Client
-var ctx context.Context
-var cronTime string
-var writeTo string
+var (
+	cli      *client.Client
+	ctx      context.Context
+	cronTime string
+	writeTo  string
+)
 
 func init() {
 	err := godotenv.Load("/env/.env")
