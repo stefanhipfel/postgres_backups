@@ -3,6 +3,7 @@ package writer
 import (
 	"bufio"
 	"compress/gzip"
+	"fmt"
 	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -59,7 +60,7 @@ func (s *S3) Write(f string, r *bufio.Reader) (err error) {
 			log.Fatalln("Failed to upload", err)
 		}
 	}()
-
+	fmt.Println(s3ID, s3Secret, s3Endpoint)
 	uploader := s3manager.NewUploader(s.session)
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Body:   pr,
