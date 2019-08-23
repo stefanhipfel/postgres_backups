@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"compress/gzip"
 	"io"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/namsral/flag"
 	"github.com/prometheus/common/log"
@@ -73,4 +75,25 @@ func (s *S3) Write(f string, r *bufio.Reader) (err error) {
 	log.Infoln("Successfully uploaded to", result.Location)
 
 	return nil
+}
+
+func (s *S3) CleanupOldBackups() (err error) {
+	now := time.Now()
+	svc := s3.New(s.session)
+	listRes, err := svc.ListObjects(&s3.ListObjectsInput{Bucket: aws.String(s.s3Bucket)})
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	for _, listObj := range listRes.Contents {
+		if err != nil {
+			continue
+		}
+		age := now.Sub(*listObj.LastModified).Hours()
+		if age > 8 {
+			log.Infoln("DELETING BACKUP", listObj.LastModified)
+			svc.DeleteObject(&s3.DeleteObjectInput{Bucket: aws.String(s.s3Bucket), Key: listObj.Key})
+		}
+	}
+	return
 }

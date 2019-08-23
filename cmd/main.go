@@ -24,6 +24,7 @@ var (
 
 func init() {
 	err := godotenv.Load("/env/.env")
+	//err := godotenv.Load(path.Join(os.Getenv("HOME"), "Development/private/tastysoft/postgres_backup/env/.env"))
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}

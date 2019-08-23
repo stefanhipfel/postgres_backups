@@ -29,3 +29,7 @@ func (c *File) Write(f string, r *bufio.Reader) (err error) {
 	}
 	return nil
 }
+
+func (s *File) CleanupOldBackups() (err error) {
+	return
+}
